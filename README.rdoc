@@ -1,0 +1,27 @@
+== pinboard-backup 0.1
+
+Performs verson controlled backups of your Bookmarks from Pinboard (http://pinboard.in/)
+
+=== Requirements
+* Git
+* Curl
+* Bash
+
+== Geting Started
+
+Add your credentials to ~/.netrc 
+  machine pinboard.in login <pinboard-login> password <pinboard-password>
+
+Set the script to run from cron
+  crontab -e
+  0 18 * * * /path/to/pinboard-backup.sh 
+
+You're Done.
+
+A git repo will be created in ~/.pinboard if it doesn't exist. 
+Your export will be saved to bookmarks.xml and commited to the repo. 
+The script is quiet and will send it's output success/failure to syslog.
+
+=== Todo
+* Retry a few times if we can't fetch the export
+* Logfile for errors/warnings
