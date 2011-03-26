@@ -1,27 +1,37 @@
 #!/bin/bash
+# https://github.com/symm/pinboard-backup
 # Performs version controlled backup of your http://pinboard.in/ bookmarks
+
 SRC="https://pinboard.in/export/"
 DEST=$HOME"/.pinboard/"
-USERAGENT="Mozilla/5.0"
-TAG="Pinboard"
+USERAGENT="PinboardBackup +https://github.com/symm/pinboard-backup"
+VALID_TYPE="exported SGML document text"
 
 if [ ! -d "$DEST" ]; then
+  echo "Initial run, creating a new Git repo in $DEST"
   git init -q $DEST
 fi
 
-curl -s -A $USERAGENT --netrc $SRC -o $DEST"pinboard.xml"
+curl -s -A "$USERAGENT" --netrc $SRC -o $DEST"pinboard.html"
 if [ $? != 0 ]; then
-  logger -p 3 -t "$TAG" "Unable to fetch bookmarks export"
+  echo "[!] Unable to fetch the export. Your latest bookmarks were NOT saved."
   exit 1
 fi
 
 cd $DEST
-git add pinboard.xml
+EXPORT_TYPE=`file -b pinboard.html`
+if [ "$EXPORT_TYPE" != "$VALID_TYPE" ]; then
+  echo "[!] Unable to save your latest bookmarks. The downloaded file was not \"$VALID_TYPE\". " 
+  git checkout HEAD . &> /dev/null
+  exit 1
+fi
+git add pinboard.html &> /dev/null
 git commit -q -m "Pinboard cron backup" &> /dev/null
+
 RESPONSE=$?
 if [ $RESPONSE == 0 ]; then
-  logger -t "$TAG" "Pinboard backup success"
+  echo "Your latest Pinboard bookmarks have been saved"
 fi
 if [ $RESPONSE == 1 ]; then
-  logger -t "$TAG" "Nothing new to backup"
+  echo "Your Pinboard backup is already up-to-date"
 fi
