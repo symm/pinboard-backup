@@ -2,28 +2,24 @@
 Gives you version controlled backups of your [Pinboard](http://pinboard.in/ "Pinboard") bookmarks
 
 ### What you will need
-Git, Curl and Bash
+Git, Perl, LWP and SSLeay (apt-get install libcrypt-ssleay-perl)
 
 ### How to get started
-Add your credentials to ~/.netrc
-	
-        machine pinboard.in login <pinboard-login> password <pinboard-password>
 
-When you run the script a new git repo will be created in ~/.pinboard and the export will be saved as pinboard.html
+Set your $username and $password in backup.pl
+Run ./backup.pl and a new git repo will be created in ~/.pinboard. The exports will be saved here.
 
 Once you have verified everything is working, you may wish to set up a weekly cron:
 
         crontab -e
-        0 12 * * 5 /path/to/pinboard-backup.sh 
+        @weekly /path/to/backup.pl 
+
+Changes to your bookmarks get saved as a new commit, so you can have a nice running history of saved links.
 
 ### Changes
-#### 2011-03-26
 
-*  Script now outputs its status instead of going to syslog
-*  Added a basic check to verify the retrieved filetype.
-*  Renamed the backup file to pinboard.html. If you used a previous version and would like to retain your history:
-
-        cd ~/.pinboard
-        git mv pinboard.xml pinboard.html
-        git commit -m "Renamed the exports file"
-
+#### 2011-05-26
+*  Changes to the basic auth login on pinboard required a rewrite. We now use Perl LWP.
+*  Script name is now backup.nl
+*  .netrc credentils are no longer used
+*  Currently does a html export and is saved as bookmarks.html. Support for other formats might come later. 
